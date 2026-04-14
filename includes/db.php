@@ -1,9 +1,13 @@
 <?php
+// Load environment variables if .env file exists
+$envFile = __DIR__ . '/../.env';
+$env = file_exists($envFile) ? parse_ini_file($envFile) : [];
+
 // Database Configuration
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = 'Aryan@0446';
-$db_name = 'paisa_pilot';
+$db_host = $env['DB_HOST'] ?? 'localhost';
+$db_user = $env['DB_USER'] ?? 'root';
+$db_pass = $env['DB_PASS'] ?? '';
+$db_name = $env['DB_NAME'] ?? 'paisa_pilot';
 
 // Create connection
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
