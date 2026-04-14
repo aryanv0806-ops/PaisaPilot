@@ -1,6 +1,12 @@
 <?php
 // One-time setup script to create database and tables
-$conn = new mysqli('localhost', 'root', 'Aryan@0446');
+$envFile = __DIR__ . '/.env';
+$env = file_exists($envFile) ? parse_ini_file($envFile) : [];
+$db_host = $env['DB_HOST'] ?? 'localhost';
+$db_user = $env['DB_USER'] ?? 'root';
+$db_pass = $env['DB_PASS'] ?? '';
+
+$conn = new mysqli($db_host, $db_user, $db_pass);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
