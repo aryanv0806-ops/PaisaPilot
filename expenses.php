@@ -1,6 +1,6 @@
 <?php
-require_once 'includes/auth_check.php';
-require_once 'includes/db.php';
+require_once 'auth_check.php';
+require_once 'db.php';
 
 $user_id = $_SESSION['user_id'];
 $page_title = 'Expenses';
@@ -99,123 +99,94 @@ $stmt->close();
 
 $conn->close();
 
-include 'includes/header.php';
+include 'header.php';
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <h1 class="page-title">Expense Tracker</h1>
-    <p class="page-subtitle">Log and manage your daily spending — Current Balance: <strong class="text-blue rupee">₹<?php echo number_format($current_balance, 2); ?></strong></p>
-</div>
+<h1>Expense Tracker</h1>
+<p>Log and manage your daily spending — Current Balance: <strong>₹<?php echo number_format($current_balance, 2); ?></strong></p>
 
 <?php if ($error): ?>
-    <div class="alert alert-error">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-        <?php echo htmlspecialchars($error); ?>
-    </div>
+    <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
 <?php endif; ?>
 
 <?php if ($success): ?>
-    <div class="alert alert-success">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-        <?php echo htmlspecialchars($success); ?>
-    </div>
+    <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
 <?php endif; ?>
 
-<div class="content-split">
-    <!-- Add Expense Form -->
-    <div class="form-card">
-        <h2 class="form-card-title">
-            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Add Expense
-        </h2>
-        <form method="POST" action="" id="expenseForm">
-            <input type="hidden" name="action" value="add_expense">
+<div class="form-card">
+    <h2>Add Expense</h2>
+    <form method="POST" action="">
+        <input type="hidden" name="action" value="add_expense">
 
-            <div class="form-group">
-                <label for="amount">Amount (₹)</label>
-                <input type="number" id="amount" name="amount" placeholder="0.00" step="0.01" min="0.01" required>
-            </div>
-
-            <div class="form-group">
-                <label for="category">Category</label>
-                <select id="category" name="category" required>
-                    <option value="">Select category...</option>
-                    <option value="Food">🍔 Food & Dining</option>
-                    <option value="Transport">🚗 Transport</option>
-                    <option value="Entertainment">🎬 Entertainment</option>
-                    <option value="Bills">📄 Bills & Utilities</option>
-                    <option value="Shopping">🛍️ Shopping</option>
-                    <option value="Health">🏥 Health</option>
-                    <option value="Other">📦 Other</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Description</label>
-                <input type="text" id="description" name="description" placeholder="e.g. Lunch at cafe">
-            </div>
-
-            <div class="form-group">
-                <label for="date">Date</label>
-                <input type="date" id="date" name="date" value="<?php echo date('Y-m-d'); ?>" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block mt-2" id="addExpenseBtn">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                Add Expense
-            </button>
-        </form>
-    </div>
-
-    <!-- Expenses Table -->
-    <div class="table-card">
-        <div class="table-card-header">
-            <h3 class="table-card-title">Expense History</h3>
-            <span class="text-muted" style="font-size:13px;"><?php echo $expenses->num_rows; ?> entries</span>
+        <div class="form-group">
+            <label for="amount">Amount (₹)</label>
+            <input type="number" id="amount" name="amount" placeholder="0.00" step="0.01" min="0.01" required>
         </div>
-        <div style="overflow-x: auto;">
-            <table class="data-table" id="expensesTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Category</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($expenses->num_rows > 0): ?>
-                        <?php while ($exp = $expenses->fetch_assoc()): ?>
-                        <tr>
-                            <td style="white-space:nowrap;"><?php echo date('d M Y', strtotime($exp['date'])); ?></td>
-                            <td><span class="badge badge-<?php echo strtolower($exp['category']); ?>"><?php echo htmlspecialchars($exp['category']); ?></span></td>
-                            <td><?php echo htmlspecialchars($exp['description'] ?: '—'); ?></td>
-                            <td class="rupee" style="font-weight:600; color: var(--accent-red);">-₹<?php echo number_format($exp['amount'], 2); ?></td>
-                            <td>
-                                <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Delete this expense? The amount will be refunded.')">
-                                    <input type="hidden" name="action" value="delete_expense">
-                                    <input type="hidden" name="expense_id" value="<?php echo $exp['id']; ?>">
-                                    <button type="submit" class="btn-delete-sm">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="5">
-                                <div class="empty-state">
-                                    <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-                                    <p>No expenses recorded yet. Start tracking your spending!</p>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+                <option value="">Select category...</option>
+                <option value="Food">Food & Dining</option>
+                <option value="Transport">Transport</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Bills">Bills & Utilities</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Health">Health</option>
+                <option value="Other">Other</option>
+            </select>
         </div>
-    </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" id="description" name="description" placeholder="e.g. Lunch at cafe">
+        </div>
+
+        <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" value="<?php echo date('Y-m-d'); ?>" required>
+        </div>
+
+        <button type="submit" class="btn">Add Expense</button>
+    </form>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<div class="table-card">
+    <h3>Expense History (<?php echo $expenses->num_rows; ?> entries)</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if ($expenses->num_rows > 0): ?>
+                <?php while ($exp = $expenses->fetch_assoc()): ?>
+                <tr>
+                    <td><?php echo date('d M Y', strtotime($exp['date'])); ?></td>
+                    <td><?php echo htmlspecialchars($exp['category']); ?></td>
+                    <td><?php echo htmlspecialchars($exp['description'] ?: '—'); ?></td>
+                    <td>-₹<?php echo number_format($exp['amount'], 2); ?></td>
+                    <td>
+                        <form method="POST" action="" onsubmit="return confirm('Delete this expense?')">
+                            <input type="hidden" name="action" value="delete_expense">
+                            <input type="hidden" name="expense_id" value="<?php echo $exp['id']; ?>">
+                            <button type="submit" class="btn">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="5">No expenses recorded yet.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<?php include 'footer.php'; ?>

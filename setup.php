@@ -2,19 +2,18 @@
 // One-time setup script to create database and tables
 $envFile = __DIR__ . '/.env';
 $env = file_exists($envFile) ? parse_ini_file($envFile) : [];
-$db_host = $env['DB_HOST'] ?? 'localhost';
-$db_user = $env['DB_USER'] ?? 'root';
-$db_pass = $env['DB_PASS'] ?? '';
+$db_host = $env['DB_HOST'] ?? 'sql100.infinityfree.com';
+$db_user = $env['DB_USER'] ?? 'if0_41675899';
+$db_pass = $env['DB_PASS'] ?? 'Arya7575123';
+$db_name = $env['DB_NAME'] ?? 'if0_41675899_paisapilot';
 
-$conn = new mysqli($db_host, $db_user, $db_pass);
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Create database
-$conn->query("CREATE DATABASE IF NOT EXISTS paisa_pilot");
-$conn->select_db("paisa_pilot");
+// Set charset
 $conn->set_charset("utf8mb4");
 
 // Users table
